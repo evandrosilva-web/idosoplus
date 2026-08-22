@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor de Saúde para Idosos</title>
+    <!-- Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Biblioteca de ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body class="bg-gray-50 text-gray-800">
+    <!-- Container Principal -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+      <!-- Cabeçalho -->
+      <header class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">
+          Painel de Monitoramento de Saúde
+        </h1>
+        <p class="text-lg text-gray-600 mt-2">
+          Paciente:
+          <span id="nome-paciente" class="font-semibold"
+            >Nenhum paciente selecionado</span
+          >
+        </p>
+        <button
+          onclick="definirPaciente()"
+          class="mt-2 bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition"
+        >
+          Adicionar/Alterar Paciente
+        </button>
+      </header>
+
+      <!-- Botão de Emergência -->
+      <div class="flex justify-center mb-8">
+        <button
+          onclick="mostrarModalAlerta()"
+          class="flex items-center gap-3 bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300"
+        >
+          <i data-lucide="siren" class="w-8 h-8"></i>
+          <span class="text-xl">ALERTA DE EMERGÊNCIA</span>
+        </button>
+      </div>
+
+      <!-- Grid com os Módulos de Monitoramento -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        <!-- Card: Sinais Vitais -->
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
+          <div class="flex items-center mb-4">
+            <i data-lucide="heart-pulse" class="text-blue-500 w-8 h-8 mr-3"></i>
+            <h2 class="text-2xl font-semibold">Sinais Vitais</h2>
+          </div>
+          <!-- Formulário para adicionar novos dados -->
+          <form id="form-sinais-vitais" class="space-y-3 mb-4">
+            <div class="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder="Pressão (ex: 12/8)"
+                id="pressao"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="number"
+                placeholder="Cardíaco (bpm)"
+                id="cardiaco"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <input
+              type="number"
+              placeholder="Oxigenação (SpO₂ %)"
+              id="oxigenacao"
+              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            <button
+              type="submit"
+              class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition"
+            >
+              Adicionar Registro
+            </button>
+          </form>
+          <!-- Lista de registros -->
+          <div
+            id="lista-sinais-vitais"
+            class="space-y-3 overflow-y-auto flex-grow"
+            style="max-height: 250px"
+          >
+            <!-- Registros serão inseridos aqui via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Card: Lembretes de Medicação -->
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
+          <div class="flex items-center mb-4">
+            <i data-lucide="pilcrow" class="text-green-500 w-8 h-8 mr-3"></i>
+            <h2 class="text-2xl font-semibold">Lembretes de Medicação</h2>
+          </div>
+          <form id="form-medicamentos" class="space-y-3 mb-4">
+            <input
+              type="text"
+              placeholder="Nome do Medicamento"
+              id="nome-medicamento"
+              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+              required
+            />
+            <div class="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder="Dosagem (ex: 50mg)"
+                id="dosagem-medicamento"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              />
+              <input
+                type="time"
+                id="hora-medicamento"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-600 transition"
+            >
+              Adicionar Lembrete
+            </button>
+          </form>
+          <div
+            id="lista-medicamentos"
+            class="space-y-3 overflow-y-auto flex-grow"
+            style="max-height: 250px"
+          >
+            <!-- Lembretes serão inseridos aqui -->
+          </div>
+        </div>
+
+        <!-- Card: Próximas Consultas -->
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
+          <div class="flex items-center mb-4">
+            <i
+              data-lucide="calendar-days"
+              class="text-purple-500 w-8 h-8 mr-3"
+            ></i>
+            <h2 class="text-2xl font-semibold">Próximas Consultas</h2>
+          </div>
+          <form id="form-consultas" class="space-y-3 mb-4">
+            <input
+              type="text"
+              placeholder="Especialidade Médica"
+              id="especialidade-consulta"
+              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+              required
+            />
+            <div class="grid grid-cols-2 gap-3">
+              <input
+                type="date"
+                id="data-consulta"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                required
+              />
+              <input
+                type="time"
+                id="hora-consulta"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-purple-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-600 transition"
+            >
+              Agendar Consulta
+            </button>
+          </form>
+          <div
+            id="lista-consultas"
+            class="space-y-3 overflow-y-auto flex-grow"
+            style="max-height: 250px"
+          >
+            <!-- Consultas serão inseridas aqui -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Alerta de Emergência -->
+    <div
+      id="modal-alerta"
+      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full text-center transform transition-all scale-95"
+      >
+        <div
+          class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-100 mb-6"
+        >
+          <i data-lucide="alert-triangle" class="h-12 w-12 text-red-600"></i>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-900">Alerta de Emergência!</h3>
+        <p class="mt-4 text-lg text-gray-600">
+          Um pedido de ajuda foi enviado para os contatos de emergência e para o
+          serviço de saúde. Mantenha a calma, a ajuda está a caminho.
+        </p>
+        <div class="mt-8">
+          <button
+            onclick="fecharModalAlerta()"
+            class="w-full bg-red-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-4 focus:ring-red-300"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
