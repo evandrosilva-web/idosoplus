@@ -16,6 +16,9 @@ let dados = {
   consultas: [],
 };
 
+// Histórico de chat
+let historioChat = [];
+
 // --- FUNÇÕES DE RENDERIZAÇÃO ---
 
 // Renderiza a lista de sinais vitais
@@ -137,6 +140,58 @@ function renderizarConsultas() {
   }
 }
 
+// Adiciona mensagem ao chat
+function adicionarMensagemChat(texto, tipo) {
+  const chatContainer = document.getElementById("chat-container");
+  
+  // Remove mensagem de boas-vindas se for a primeira mensagem
+  if (historioChat.length === 0 && chatContainer.querySelector(".text-center")) {
+    chatContainer.innerHTML = "";
+  }
+  
+  const mensagemEl = document.createElement("div");
+  mensagemEl.className = tipo === "usuario" 
+    ? "bg-indigo-100 p-3 rounded-lg text-right"
+    : "bg-gray-100 p-3 rounded-lg text-left";
+  
+  mensagemEl.innerHTML = `<p class="text-sm">${escapeHtml(texto)}</p>`;
+  chatContainer.appendChild(mensagemEl);
+  
+  // Scroll para a última mensagem
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  
+  historioChat.push({ tipo, texto });
+}
+
+// Função para escapar HTML e prevenir XSS
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Respostas simuladas da IA sobre saúde
+function obterRespostaIA(pergunta) {
+  const perguntas = {
+    pressão: "A pressão arterial normal é aproximadamente 120/80 mmHg. Se seus valores estão consistentemente altos, consulte um médico.",
+    medicamento: "Sempre tome seus medicamentos nos horários prescritos. Se esqueceu uma dose, não duplique na próxima vez.",
+    oxigenação: "A saturação de oxigênio normal está entre 95-100%. Valores abaixo de 95% podem indicar problemas respiratórios.",
+    cardíaco: "A frequência cardíaca em repouso normal é entre 60-100 bpm. Aumentos significativos podem indicar atividade ou estresse.",
+    saúde: "Cuide de sua saúde mantendo uma dieta equilibrada, praticando exercícios regularmente e dormindo bem.",
+    ajuda: "Posso ajudá-lo com perguntas sobre seus sinais vitais, medicamentos, consultas e saúde geral.",
+  };
+  
+  const perguntaLower = pergunta.toLowerCase();
+  
+  for (let chave in perguntas) {
+    if (perguntaLower.includes(chave)) {
+      return perguntas[chave];
+    }
+  }
+  
+  return "Desculpe, não entendi sua pergunta. Pergunte-me sobre pressão, frequência cardíaca, oxigenação, medicamentos, consultas ou saúde em geral.";
+}
+
 // --- FUNÇÕES DE PERSISTÊNCIA (localStorage) ---
 
 function carregarDados() {
@@ -208,6 +263,28 @@ document.addEventListener("DOMContentLoaded", () => {
       salvarDados();
       renderizarConsultas();
       e.target.reset();
+    });
+
+  // Chat com IA
+  document
+    .getElementById("form-chat")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      const chatInput = document.getElementById("chat-input");
+      const mensagem = chatInput.value.trim();
+      
+      if (mensagem) {
+        // Adiciona mensagem do usuário
+        adicionarMensagemChat(mensagem, "usuario");
+        
+        // Simula delay da resposta da IA
+        setTimeout(() => {
+          const resposta = obterRespostaIA(mensagem);
+          adicionarMensagemChat(resposta, "ia");
+        }, 500);
+        
+        chatInput.value = "";
+      }
     });
 });
 
