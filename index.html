@@ -38,7 +38,7 @@
       <div class="flex justify-center mb-8">
         <button
           onclick="mostrarModalAlerta()"
-          class="flex items-center gap-3 bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300"
+          class="flex items-center gap-3 bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 focus:outline-none focus:r[...]"
         >
           <i data-lucide="siren" class="w-8 h-8"></i>
           <span class="text-xl">ALERTA DE EMERGÊNCIA</span>
@@ -137,6 +137,111 @@
             style="max-height: 250px"
           >
             <!-- Lembretes serão inseridos aqui -->
+          </div>
+        </div>
+
+        <!-- Card: Preenchimento de Saúde -->
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
+          <div class="flex items-center mb-4">
+            <i data-lucide="clipboard-list" class="text-orange-500 w-8 h-8 mr-3"></i>
+            <h2 class="text-2xl font-semibold">Preenchimento de Saúde</h2>
+          </div>
+          <form id="form-preenchimento-saude" class="space-y-3 mb-4">
+            <!-- Perguntas sobre saúde geral -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Como você se sente hoje?
+              </label>
+              <select
+                id="sensacao-geral"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                required
+              >
+                <option value="">Selecione uma opção</option>
+                <option value="muito-bem">Muito bem</option>
+                <option value="bem">Bem</option>
+                <option value="neutro">Neutro</option>
+                <option value="mal">Mal</option>
+                <option value="muito-mal">Muito mal</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Teve tonturas ou vertigem?
+              </label>
+              <select
+                id="tonturas"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                required
+              >
+                <option value="">Selecione uma opção</option>
+                <option value="nao">Não</option>
+                <option value="leve">Leve</option>
+                <option value="moderada">Moderada</option>
+                <option value="severa">Severa</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Teve dificuldade em dormir?
+              </label>
+              <select
+                id="sono"
+                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                required
+              >
+                <option value="">Selecione uma opção</option>
+                <option value="nao">Não</option>
+                <option value="pouca">Pouca</option>
+                <option value="moderada">Moderada</option>
+                <option value="muita">Muita</option>
+              </select>
+            </div>
+
+            <!-- Escala de Dor -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nível de Dor no Corpo (0-10)
+              </label>
+              <div class="flex items-center gap-3">
+                <input
+                  type="range"
+                  id="escala-dor"
+                  min="0"
+                  max="10"
+                  value="0"
+                  class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                />
+                <span id="valor-dor" class="text-xl font-bold text-orange-500 w-8 text-center">0</span>
+              </div>
+              <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Sem dor</span>
+                <span>Dor máxima</span>
+              </div>
+            </div>
+
+            <textarea
+              id="observacoes-saude"
+              placeholder="Observações adicionais sobre sua saúde..."
+              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 resize-none"
+              rows="3"
+            ></textarea>
+
+            <button
+              type="submit"
+              class="w-full bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 transition"
+            >
+              Registrar Preenchimento
+            </button>
+          </form>
+          <div
+            id="lista-preenchimento-saude"
+            class="space-y-3 overflow-y-auto flex-grow"
+            style="max-height: 250px"
+          >
+            <!-- Registros serão inseridos aqui -->
           </div>
         </div>
 
