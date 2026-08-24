@@ -186,6 +186,42 @@
             <!-- Consultas serão inseridas aqui -->
           </div>
         </div>
+
+        <!-- Card: Assistente de IA -->
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col md:col-span-2 xl:col-span-1">
+          <div class="flex items-center mb-4">
+            <i data-lucide="bot" class="text-indigo-500 w-8 h-8 mr-3"></i>
+            <h2 class="text-2xl font-semibold">Assistente de IA</h2>
+          </div>
+          
+          <!-- Chat Container -->
+          <div
+            id="chat-container"
+            class="space-y-3 overflow-y-auto flex-grow mb-4"
+            style="max-height: 300px; min-height: 200px"
+          >
+            <div class="text-gray-500 text-center p-4">
+              Olá! Sou seu assistente de saúde. Como posso ajudá-lo?
+            </div>
+          </div>
+
+          <!-- Input de Mensagem -->
+          <form id="form-chat" class="flex gap-2">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Digite sua pergunta..."
+              class="flex-grow p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+              required
+            />
+            <button
+              type="submit"
+              class="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition"
+            >
+              <i data-lucide="send" class="w-5 h-5"></i>
+            </button>
+          </form>
+        </div>
       </div>
     </div>
 
