@@ -14,6 +14,7 @@ let dados = {
   sinaisVitais: [],
   medicamentos: [],
   consultas: [],
+  preenchimentoSaude: [],
 };
 
 // Histórico de chat
@@ -140,6 +141,68 @@ function renderizarConsultas() {
   }
 }
 
+// Renderiza a lista de preenchimento de saúde
+function renderizarPreenchimentoSaude() {
+  const listaEl = document.getElementById("lista-preenchimento-saude");
+  listaEl.innerHTML = "";
+  
+  if (dados.preenchimentoSaude.length === 0) {
+    listaEl.innerHTML = `<p class="text-gray-500 text-center p-4">Nenhum preenchimento encontrado.</p>`;
+    return;
+  }
+  
+  // Ordena do mais recente para o mais antigo
+  const dadosOrdenados = [...dados.preenchimentoSaude].sort((a, b) => {
+    return new Date(b.data) - new Date(a.data);
+  });
+
+  dadosOrdenados.forEach((item) => {
+    const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(new Date(item.data));
+
+    // Traduz as opções para português
+    const traducoes = {
+      "muito-bem": "Muito bem",
+      "bem": "Bem",
+      "neutro": "Neutro",
+      "mal": "Mal",
+      "muito-mal": "Muito mal",
+      "nao": "Não",
+      "leve": "Leve",
+      "moderada": "Moderada",
+      "severa": "Severa",
+      "pouca": "Pouca",
+      "muita": "Muita"
+    };
+    
+    const itemEl = document.createElement("div");
+    itemEl.className = "bg-gray-100 p-3 rounded-lg flex flex-col gap-2";
+    itemEl.innerHTML = `
+      <div class="flex justify-between items-start">
+        <div class="flex-grow">
+          <p class="text-sm font-semibold text-orange-600">Saúde Geral: ${traducoes[item.sensacaoGeral] || item.sensacaoGeral}</p>
+          <p class="text-sm font-semibold text-orange-600">Tonturas: ${traducoes[item.tonturas] || item.tonturas}</p>
+          <p class="text-sm font-semibold text-orange-600">Sono: ${traducoes[item.sono] || item.sono}</p>
+          <p class="text-sm font-semibold text-red-600">Dor: ${item.dor}/10</p>
+          ${item.observacoes ? `<p class="text-sm text-gray-600 mt-1"><strong>Obs:</strong> ${escapeHtml(item.observacoes)}</p>` : ''}
+          <p class="text-xs text-gray-500 mt-2">${dataFormatada}</p>
+        </div>
+        <button onclick="removerItem('preenchimentoSaude', ${item.id})" class="text-gray-400 hover:text-red-500 transition ml-2">
+          <i data-lucide="trash-2" class="w-5 h-5"></i>
+        </button>
+      </div>
+    `;
+    listaEl.appendChild(itemEl);
+  });
+  
+  // Recarregar ícones após modificar o DOM
+  if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+  }
+}
+
 // Adiciona mensagem ao chat
 function adicionarMensagemChat(texto, tipo) {
   const chatContainer = document.getElementById("chat-container");
@@ -179,6 +242,7 @@ function obterRespostaIA(pergunta) {
     cardíaco: "A frequência cardíaca em repouso normal é entre 60-100 bpm. Aumentos significativos podem indicar atividade ou estresse.",
     saúde: "Cuide de sua saúde mantendo uma dieta equilibrada, praticando exercícios regularmente e dormindo bem.",
     ajuda: "Posso ajudá-lo com perguntas sobre seus sinais vitais, medicamentos, consultas e saúde geral.",
+    dor: "Se você está sentindo dor, registre o nível de dor no formulário de Preenchimento de Saúde e consulte um médico se persistir.",
   };
   
   const perguntaLower = pergunta.toLowerCase();
@@ -199,9 +263,13 @@ function carregarDados() {
   if (dadosSalvos) {
     try {
       dados = JSON.parse(dadosSalvos);
+      // Garante que preenchimentoSaude existe (para compatibilidade)
+      if (!dados.preenchimentoSaude) {
+        dados.preenchimentoSaude = [];
+      }
     } catch (e) {
       console.error("Erro ao carregar dados do localStorage:", e);
-      dados = { sinaisVitais: [], medicamentos: [], consultas: [] };
+      dados = { sinaisVitais: [], medicamentos: [], consultas: [], preenchimentoSaude: [] };
     }
   }
 }
@@ -265,6 +333,29 @@ document.addEventListener("DOMContentLoaded", () => {
       e.target.reset();
     });
 
+  // Adicionar Preenchimento de Saúde
+  document
+    .getElementById("form-preenchimento-saude")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      const novoItem = {
+        id: Date.now(),
+        sensacaoGeral: document.getElementById("sensacao-geral").value,
+        tonturas: document.getElementById("tonturas").value,
+        sono: document.getElementById("sono").value,
+        dor: document.getElementById("escala-dor").value,
+        observacoes: document.getElementById("observacoes-saude").value,
+        data: new Date().toISOString(),
+      };
+      dados.preenchimentoSaude.push(novoItem);
+      salvarDados();
+      renderizarPreenchimentoSaude();
+      e.target.reset();
+      // Reset escala de dor
+      document.getElementById("escala-dor").value = 0;
+      document.getElementById("valor-dor").textContent = "0";
+    });
+
   // Chat com IA
   document
     .getElementById("form-chat")
@@ -286,6 +377,16 @@ document.addEventListener("DOMContentLoaded", () => {
         chatInput.value = "";
       }
     });
+
+  // Listener para atualizar o valor de dor em tempo real
+  const escalaDorliderElement = document.getElementById("escala-dor");
+  const valorDorElement = document.getElementById("valor-dor");
+  
+  if (escalaDorliderElement) {
+    escalaDorliderElement.addEventListener("input", function () {
+      valorDorElement.textContent = this.value;
+    });
+  }
 });
 
 // Remover item genérico
@@ -297,6 +398,7 @@ function removerItem(tipo, id) {
   if (tipo === "sinaisVitais") renderizarSinaisVitais();
   if (tipo === "medicamentos") renderizarMedicamentos();
   if (tipo === "consultas") renderizarConsultas();
+  if (tipo === "preenchimentoSaude") renderizarPreenchimentoSaude();
 }
 
 // --- LÓGICA DO MODAL DE ALERTA ---
@@ -335,6 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizarSinaisVitais();
   renderizarMedicamentos();
   renderizarConsultas();
+  renderizarPreenchimentoSaude();
   
   // Inicializar ícones Lucide
   if (typeof lucide !== "undefined") {
