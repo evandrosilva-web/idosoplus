@@ -178,14 +178,14 @@ function renderizarPreenchimentoSaude() {
     };
     
     const itemEl = document.createElement("div");
-    itemEl.className = "bg-gray-100 p-3 rounded-lg flex flex-col gap-2";
+    itemEl.className = "bg-orange-50 border border-orange-200 p-3 rounded-lg flex flex-col gap-2";
     itemEl.innerHTML = `
       <div class="flex justify-between items-start">
         <div class="flex-grow">
-          <p class="text-sm font-semibold text-orange-600">Saúde Geral: ${traducoes[item.sensacaoGeral] || item.sensacaoGeral}</p>
-          <p class="text-sm font-semibold text-orange-600">Tonturas: ${traducoes[item.tonturas] || item.tonturas}</p>
-          <p class="text-sm font-semibold text-orange-600">Sono: ${traducoes[item.sono] || item.sono}</p>
-          <p class="text-sm font-semibold text-red-600">Dor: ${item.dor}/10</p>
+          <p class="text-sm font-semibold text-orange-700">Saúde Geral: ${traducoes[item.sensacaoGeral] || item.sensacaoGeral}</p>
+          <p class="text-sm font-semibold text-orange-700">Tonturas: ${traducoes[item.tonturas] || item.tonturas}</p>
+          <p class="text-sm font-semibold text-orange-700">Sono: ${traducoes[item.sono] || item.sono}</p>
+          <p class="text-sm font-bold text-red-600">Dor: ${item.dor}/10</p>
           ${item.observacoes ? `<p class="text-sm text-gray-600 mt-1"><strong>Obs:</strong> ${escapeHtml(item.observacoes)}</p>` : ''}
           <p class="text-xs text-gray-500 mt-2">${dataFormatada}</p>
         </div>
@@ -278,117 +278,6 @@ function salvarDados() {
   localStorage.setItem("dados-paciente", JSON.stringify(dados));
 }
 
-// --- LÓGICA DE EVENTOS ---
-
-// Adicionar Sinais Vitais
-document.addEventListener("DOMContentLoaded", () => {
-  document
-    .getElementById("form-sinais-vitais")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-      const novoItem = {
-        id: Date.now(),
-        pressao: document.getElementById("pressao").value,
-        cardiaco: document.getElementById("cardiaco").value,
-        oxigenacao: document.getElementById("oxigenacao").value,
-        data: new Date().toISOString(),
-      };
-      dados.sinaisVitais.push(novoItem);
-      salvarDados();
-      renderizarSinaisVitais();
-      e.target.reset();
-    });
-
-  // Adicionar Medicamento
-  document
-    .getElementById("form-medicamentos")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-      const novoItem = {
-        id: Date.now(),
-        nome: document.getElementById("nome-medicamento").value,
-        dosagem: document.getElementById("dosagem-medicamento").value,
-        hora: document.getElementById("hora-medicamento").value,
-      };
-      dados.medicamentos.push(novoItem);
-      salvarDados();
-      renderizarMedicamentos();
-      e.target.reset();
-    });
-
-  // Adicionar Consulta
-  document
-    .getElementById("form-consultas")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-      const novoItem = {
-        id: Date.now(),
-        especialidade: document.getElementById("especialidade-consulta").value,
-        data: document.getElementById("data-consulta").value,
-        hora: document.getElementById("hora-consulta").value,
-      };
-      dados.consultas.push(novoItem);
-      salvarDados();
-      renderizarConsultas();
-      e.target.reset();
-    });
-
-  // Adicionar Preenchimento de Saúde
-  document
-    .getElementById("form-preenchimento-saude")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-      const novoItem = {
-        id: Date.now(),
-        sensacaoGeral: document.getElementById("sensacao-geral").value,
-        tonturas: document.getElementById("tonturas").value,
-        sono: document.getElementById("sono").value,
-        dor: document.getElementById("escala-dor").value,
-        observacoes: document.getElementById("observacoes-saude").value,
-        data: new Date().toISOString(),
-      };
-      dados.preenchimentoSaude.push(novoItem);
-      salvarDados();
-      renderizarPreenchimentoSaude();
-      e.target.reset();
-      // Reset escala de dor
-      document.getElementById("escala-dor").value = 0;
-      document.getElementById("valor-dor").textContent = "0";
-    });
-
-  // Chat com IA
-  document
-    .getElementById("form-chat")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-      const chatInput = document.getElementById("chat-input");
-      const mensagem = chatInput.value.trim();
-      
-      if (mensagem) {
-        // Adiciona mensagem do usuário
-        adicionarMensagemChat(mensagem, "usuario");
-        
-        // Simula delay da resposta da IA
-        setTimeout(() => {
-          const resposta = obterRespostaIA(mensagem);
-          adicionarMensagemChat(resposta, "ia");
-        }, 500);
-        
-        chatInput.value = "";
-      }
-    });
-
-  // Listener para atualizar o valor de dor em tempo real
-  const escalaDorliderElement = document.getElementById("escala-dor");
-  const valorDorElement = document.getElementById("valor-dor");
-  
-  if (escalaDorliderElement) {
-    escalaDorliderElement.addEventListener("input", function () {
-      valorDorElement.textContent = this.value;
-    });
-  }
-});
-
 // Remover item genérico
 function removerItem(tipo, id) {
   dados[tipo] = dados[tipo].filter((item) => item.id !== id);
@@ -427,6 +316,8 @@ carregarDados();
 
 // Renderiza tudo quando a página carrega
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOMContentLoaded acionado");
+
   // Carregar nome do paciente salvo
   const nomeSalvo = localStorage.getItem("nome-paciente");
   if (nomeSalvo) {
@@ -438,7 +329,129 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizarMedicamentos();
   renderizarConsultas();
   renderizarPreenchimentoSaude();
+
+  // --- ADICIONAR EVENT LISTENERS DOS FORMULÁRIOS ---
+
+  // Adicionar Sinais Vitais
+  const formSinaisVitais = document.getElementById("form-sinais-vitais");
+  if (formSinaisVitais) {
+    formSinaisVitais.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const novoItem = {
+        id: Date.now(),
+        pressao: document.getElementById("pressao").value,
+        cardiaco: document.getElementById("cardiaco").value,
+        oxigenacao: document.getElementById("oxigenacao").value,
+        data: new Date().toISOString(),
+      };
+      dados.sinaisVitais.push(novoItem);
+      salvarDados();
+      renderizarSinaisVitais();
+      this.reset();
+    });
+  }
+
+  // Adicionar Medicamento
+  const formMedicamentos = document.getElementById("form-medicamentos");
+  if (formMedicamentos) {
+    formMedicamentos.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const novoItem = {
+        id: Date.now(),
+        nome: document.getElementById("nome-medicamento").value,
+        dosagem: document.getElementById("dosagem-medicamento").value,
+        hora: document.getElementById("hora-medicamento").value,
+      };
+      dados.medicamentos.push(novoItem);
+      salvarDados();
+      renderizarMedicamentos();
+      this.reset();
+    });
+  }
+
+  // Adicionar Consulta
+  const formConsultas = document.getElementById("form-consultas");
+  if (formConsultas) {
+    formConsultas.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const novoItem = {
+        id: Date.now(),
+        especialidade: document.getElementById("especialidade-consulta").value,
+        data: document.getElementById("data-consulta").value,
+        hora: document.getElementById("hora-consulta").value,
+      };
+      dados.consultas.push(novoItem);
+      salvarDados();
+      renderizarConsultas();
+      this.reset();
+    });
+  }
+
+  // Adicionar Preenchimento de Saúde
+  const formPreenchimentoSaude = document.getElementById("form-preenchimento-saude");
+  if (formPreenchimentoSaude) {
+    formPreenchimentoSaude.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("Formulário de preenchimento de saúde enviado");
+      
+      const novoItem = {
+        id: Date.now(),
+        sensacaoGeral: document.getElementById("sensacao-geral").value,
+        tonturas: document.getElementById("tonturas").value,
+        sono: document.getElementById("sono").value,
+        dor: document.getElementById("escala-dor").value,
+        observacoes: document.getElementById("observacoes-saude").value,
+        data: new Date().toISOString(),
+      };
+      
+      console.log("Novo item:", novoItem);
+      dados.preenchimentoSaude.push(novoItem);
+      salvarDados();
+      renderizarPreenchimentoSaude();
+      
+      // Reset do formulário
+      this.reset();
+      
+      // Reset escala de dor
+      document.getElementById("escala-dor").value = 0;
+      document.getElementById("valor-dor").textContent = "0";
+    });
+  }
+
+  // Chat com IA
+  const formChat = document.getElementById("form-chat");
+  if (formChat) {
+    formChat.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const chatInput = document.getElementById("chat-input");
+      const mensagem = chatInput.value.trim();
+      
+      if (mensagem) {
+        // Adiciona mensagem do usuário
+        adicionarMensagemChat(mensagem, "usuario");
+        
+        // Simula delay da resposta da IA
+        setTimeout(() => {
+          const resposta = obterRespostaIA(mensagem);
+          adicionarMensagemChat(resposta, "ia");
+        }, 500);
+        
+        chatInput.value = "";
+      }
+    });
+  }
+
+  // Listener para atualizar o valor de dor em tempo real
+  const escalaDorliderElement = document.getElementById("escala-dor");
+  const valorDorElement = document.getElementById("valor-dor");
   
+  if (escalaDorliderElement && valorDorElement) {
+    escalaDorliderElement.addEventListener("input", function () {
+      console.log("Slider movido para:", this.value);
+      valorDorElement.textContent = this.value;
+    });
+  }
+
   // Inicializar ícones Lucide
   if (typeof lucide !== "undefined") {
     lucide.createIcons();
