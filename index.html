@@ -4,27 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Monitor de Saúde para Idosos</title>
-    <!-- Tailwind CSS para estilização rápida e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Biblioteca de ícones Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body class="bg-gray-50 text-gray-800">
-    <!-- Container Principal -->
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-      <!-- Cabeçalho -->
       <header class="text-center mb-8">
         <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">
           Painel de Monitoramento de Saúde
         </h1>
         <p class="text-lg text-gray-600 mt-2">
           Paciente:
-          <span id="nome-paciente" class="font-semibold"
-            >Nenhum paciente selecionado</span
-          >
+          <span id="nome-paciente" class="font-semibold">Nenhum paciente selecionado</span>
         </p>
         <button
           onclick="definirPaciente()"
@@ -34,26 +27,22 @@
         </button>
       </header>
 
-      <!-- Botão de Emergência -->
       <div class="flex justify-center mb-8">
         <button
           onclick="mostrarModalAlerta()"
-          class="flex items-center gap-3 bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 focus:outline-none focus:r[...]"
+          class="flex items-center gap-3 bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300"
         >
           <i data-lucide="siren" class="w-8 h-8"></i>
           <span class="text-xl">ALERTA DE EMERGÊNCIA</span>
         </button>
       </div>
 
-      <!-- Grid com os Módulos de Monitoramento -->
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        <!-- Card: Sinais Vitais -->
         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
           <div class="flex items-center mb-4">
             <i data-lucide="heart-pulse" class="text-blue-500 w-8 h-8 mr-3"></i>
             <h2 class="text-2xl font-semibold">Sinais Vitais</h2>
           </div>
-          <!-- Formulário para adicionar novos dados -->
           <form id="form-sinais-vitais" class="space-y-3 mb-4">
             <div class="grid grid-cols-2 gap-3">
               <input
@@ -85,125 +74,50 @@
               Adicionar Registro
             </button>
           </form>
-          <!-- Lista de registros -->
-          <div
-            id="lista-sinais-vitais"
-            class="space-y-3 overflow-y-auto flex-grow"
-            style="max-height: 250px"
-          >
-            <!-- Registros serão inseridos aqui via JavaScript -->
-          </div>
+          <div id="lista-sinais-vitais" class="space-y-3 overflow-y-auto flex-grow" style="max-height: 250px"></div>
         </div>
 
-        <!-- Card: Lembretes de Medicação -->
         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
           <div class="flex items-center mb-4">
             <i data-lucide="pilcrow" class="text-green-500 w-8 h-8 mr-3"></i>
             <h2 class="text-2xl font-semibold">Lembretes de Medicação</h2>
           </div>
           <form id="form-medicamentos" class="space-y-3 mb-4">
-            <input
-              type="text"
-              placeholder="Nome do Medicamento"
-              id="nome-medicamento"
-              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-              required
-            />
+            <input type="text" placeholder="Nome do Medicamento" id="nome-medicamento" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500" required />
             <div class="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                placeholder="Dosagem (ex: 50mg)"
-                id="dosagem-medicamento"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
-              <input
-                type="time"
-                id="hora-medicamento"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
+              <input type="text" placeholder="Dosagem (ex: 50mg)" id="dosagem-medicamento" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500" required />
+              <input type="time" id="hora-medicamento" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500" required />
             </div>
-            <button
-              type="submit"
-              class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-600 transition"
-            >
-              Adicionar Lembrete
-            </button>
+            <button type="submit" class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-600 transition">Adicionar Lembrete</button>
           </form>
-          <div
-            id="lista-medicamentos"
-            class="space-y-3 overflow-y-auto flex-grow"
-            style="max-height: 250px"
-          >
-            <!-- Lembretes serão inseridos aqui -->
-          </div>
+          <div id="lista-medicamentos" class="space-y-3 overflow-y-auto flex-grow" style="max-height: 250px"></div>
         </div>
 
-        <!-- Card: Próximas Consultas -->
         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col">
           <div class="flex items-center mb-4">
-            <i
-              data-lucide="calendar-days"
-              class="text-purple-500 w-8 h-8 mr-3"
-            ></i>
+            <i data-lucide="calendar-days" class="text-purple-500 w-8 h-8 mr-3"></i>
             <h2 class="text-2xl font-semibold">Próximas Consultas</h2>
           </div>
           <form id="form-consultas" class="space-y-3 mb-4">
-            <input
-              type="text"
-              placeholder="Especialidade Médica"
-              id="especialidade-consulta"
-              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
-              required
-            />
+            <input type="text" placeholder="Especialidade Médica" id="especialidade-consulta" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required />
             <div class="grid grid-cols-2 gap-3">
-              <input
-                type="date"
-                id="data-consulta"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
-                required
-              />
-              <input
-                type="time"
-                id="hora-consulta"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
-                required
-              />
+              <input type="date" id="data-consulta" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required />
+              <input type="time" id="hora-consulta" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required />
             </div>
-            <button
-              type="submit"
-              class="w-full bg-purple-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-600 transition"
-            >
-              Agendar Consulta
-            </button>
+            <button type="submit" class="w-full bg-purple-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-600 transition">Agendar Consulta</button>
           </form>
-          <div
-            id="lista-consultas"
-            class="space-y-3 overflow-y-auto flex-grow"
-            style="max-height: 250px"
-          >
-            <!-- Consultas serão inseridas aqui -->
-          </div>
+          <div id="lista-consultas" class="space-y-3 overflow-y-auto flex-grow" style="max-height: 250px"></div>
         </div>
 
-        <!-- Card: Preenchimento de Saúde -->
         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col md:col-span-2">
           <div class="flex items-center mb-4">
             <i data-lucide="clipboard-list" class="text-orange-500 w-8 h-8 mr-3"></i>
             <h2 class="text-2xl font-semibold">Preenchimento de Saúde</h2>
           </div>
           <form id="form-preenchimento-saude" class="space-y-3 mb-4">
-            <!-- Perguntas sobre saúde geral -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Como você se sente hoje?
-              </label>
-              <select
-                id="sensacao-geral"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
-                required
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-2">Como você se sente hoje?</label>
+              <select id="sensacao-geral" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500" required>
                 <option value="">Selecione uma opção</option>
                 <option value="muito-bem">Muito bem</option>
                 <option value="bem">Bem</option>
@@ -212,16 +126,9 @@
                 <option value="muito-mal">Muito mal</option>
               </select>
             </div>
-
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Teve tonturas ou vertigem?
-              </label>
-              <select
-                id="tonturas"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
-                required
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-2">Teve tonturas ou vertigem?</label>
+              <select id="tonturas" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500" required>
                 <option value="">Selecione uma opção</option>
                 <option value="nao">Não</option>
                 <option value="leve">Leve</option>
@@ -229,16 +136,9 @@
                 <option value="severa">Severa</option>
               </select>
             </div>
-
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Teve dificuldade em dormir?
-              </label>
-              <select
-                id="sono"
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
-                required
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-2">Teve dificuldade em dormir?</label>
+              <select id="sono" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500" required>
                 <option value="">Selecione uma opção</option>
                 <option value="nao">Não</option>
                 <option value="pouca">Pouca</option>
@@ -246,21 +146,10 @@
                 <option value="muita">Muita</option>
               </select>
             </div>
-
-            <!-- Escala de Dor -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Nível de Dor no Corpo (0-10)
-              </label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Nível de Dor no Corpo (0-10)</label>
               <div class="flex items-center gap-3">
-                <input
-                  type="range"
-                  id="escala-dor"
-                  min="0"
-                  max="10"
-                  value="0"
-                  class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                />
+                <input type="range" id="escala-dor" min="0" max="10" value="0" class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500" />
                 <span id="valor-dor" class="text-xl font-bold text-orange-500 w-8 text-center">0</span>
               </div>
               <div class="flex justify-between text-xs text-gray-500 mt-1">
@@ -268,62 +157,23 @@
                 <span>Dor máxima</span>
               </div>
             </div>
-
-            <textarea
-              id="observacoes-saude"
-              placeholder="Observações adicionais sobre sua saúde..."
-              class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 resize-none"
-              rows="3"
-            ></textarea>
-
-            <button
-              type="submit"
-              class="w-full bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 transition"
-            >
-              Registrar Preenchimento
-            </button>
+            <textarea id="observacoes-saude" placeholder="Observações adicionais sobre sua saúde..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 resize-none" rows="3"></textarea>
+            <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 transition">Registrar Preenchimento</button>
           </form>
-          <div
-            id="lista-preenchimento-saude"
-            class="space-y-3 overflow-y-auto flex-grow"
-            style="max-height: 250px"
-          >
-            <!-- Registros serão inseridos aqui -->
-          </div>
+          <div id="lista-preenchimento-saude" class="space-y-3 overflow-y-auto flex-grow" style="max-height: 250px"></div>
         </div>
 
-        <!-- Card: Assistente de IA -->
         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col md:col-span-2 xl:col-span-1">
           <div class="flex items-center mb-4">
             <i data-lucide="bot" class="text-indigo-500 w-8 h-8 mr-3"></i>
             <h2 class="text-2xl font-semibold">Assistente IA</h2>
           </div>
-          
-          <!-- Chat Container -->
-          <div
-            id="chat-container"
-            class="space-y-3 overflow-y-auto flex-grow mb-4 bg-gray-50 rounded-lg p-3"
-            style="max-height: 300px; min-height: 200px"
-          >
-            <div class="text-gray-500 text-center p-4">
-              Olá! Sou seu assistente de saúde. Como posso ajudá-lo?
-            </div>
+          <div id="chat-container" class="space-y-3 overflow-y-auto flex-grow mb-4 bg-gray-50 rounded-lg p-3" style="max-height: 300px; min-height: 200px">
+            <div class="text-gray-500 text-center p-4">Olá! Sou seu assistente de saúde. Como posso ajudá-lo?</div>
           </div>
-
-          <!-- Input de Mensagem -->
           <form id="form-chat" class="flex gap-2">
-            <input
-              type="text"
-              id="chat-input"
-              placeholder="Digite sua pergunta..."
-              class="flex-grow p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-              required
-            />
-            <button
-              type="submit"
-              class="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition"
-              title="Enviar mensagem"
-            >
+            <input type="text" id="chat-input" placeholder="Digite sua pergunta..." class="flex-grow p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500" required />
+            <button type="submit" class="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition" title="Enviar mensagem">
               <i data-lucide="send" class="w-5 h-5"></i>
             </button>
           </form>
@@ -331,35 +181,20 @@
       </div>
     </div>
 
-    <!-- Modal de Alerta de Emergência -->
-    <div
-      id="modal-alerta"
-      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden"
-    >
-      <div
-        class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full text-center transform transition-all scale-95"
-      >
-        <div
-          class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-100 mb-6"
-        >
+    <div id="modal-alerta" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full text-center transform transition-all scale-95">
+        <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-100 mb-6">
           <i data-lucide="alert-triangle" class="h-12 w-12 text-red-600"></i>
         </div>
         <h3 class="text-3xl font-bold text-gray-900">Alerta de Emergência!</h3>
-        <p class="mt-4 text-lg text-gray-600">
-          Um pedido de ajuda foi enviado para os contatos de emergência e para o
-          serviço de saúde. Mantenha a calma, a ajuda está a caminho.
-        </p>
+        <p class="mt-4 text-lg text-gray-600">Um pedido de ajuda foi enviado para os contatos de emergência e para o serviço de saúde. Mantenha a calma, a ajuda está a caminho.</p>
         <div class="mt-8">
-          <button
-            onclick="fecharModalAlerta()"
-            class="w-full bg-red-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-4 focus:ring-red-300"
-          >
-            Entendido
-          </button>
+          <button onclick="fecharModalAlerta()" class="w-full bg-red-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-4 focus:ring-red-300">Entendido</button>
         </div>
       </div>
     </div>
 
+    <script src="ia-medica.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

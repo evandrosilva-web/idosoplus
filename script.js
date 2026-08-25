@@ -4,12 +4,10 @@ function definirPaciente() {
   const nome = prompt("Digite o nome do paciente:");
   if (nome && nome.trim() !== "") {
     document.getElementById("nome-paciente").textContent = nome.trim();
-    // Salvar no localStorage para manter após recarregar
     localStorage.setItem("nome-paciente", nome.trim());
   }
 }
 
-// Dados iniciais com persistência em localStorage
 let dados = {
   sinaisVitais: [],
   medicamentos: [],
@@ -17,22 +15,19 @@ let dados = {
   preenchimentoSaude: [],
 };
 
-// Histórico de chat
 let historioChat = [];
 
 // --- FUNÇÕES DE RENDERIZAÇÃO ---
 
-// Renderiza a lista de sinais vitais
 function renderizarSinaisVitais() {
   const listaEl = document.getElementById("lista-sinais-vitais");
-  listaEl.innerHTML = ""; // Limpa a lista antes de renderizar
+  listaEl.innerHTML = "";
   
   if (dados.sinaisVitais.length === 0) {
     listaEl.innerHTML = `<p class="text-gray-500 text-center p-4">Nenhum registro encontrado.</p>`;
     return;
   }
   
-  // Ordena do mais recente para o mais antigo
   const dadosOrdenados = [...dados.sinaisVitais].sort((a, b) => {
     return new Date(b.data) - new Date(a.data);
   });
@@ -57,13 +52,11 @@ function renderizarSinaisVitais() {
     listaEl.appendChild(itemEl);
   });
   
-  // Recarregar ícones após modificar o DOM
   if (typeof lucide !== "undefined") {
     lucide.createIcons();
   }
 }
 
-// Renderiza a lista de medicamentos
 function renderizarMedicamentos() {
   const listaEl = document.getElementById("lista-medicamentos");
   listaEl.innerHTML = "";
@@ -73,7 +66,6 @@ function renderizarMedicamentos() {
     return;
   }
   
-  // Ordena por hora
   const dadosOrdenados = [...dados.medicamentos].sort((a, b) =>
     a.hora.localeCompare(b.hora)
   );
@@ -93,13 +85,11 @@ function renderizarMedicamentos() {
     listaEl.appendChild(itemEl);
   });
   
-  // Recarregar ícones após modificar o DOM
   if (typeof lucide !== "undefined") {
     lucide.createIcons();
   }
 }
 
-// Renderiza a lista de consultas
 function renderizarConsultas() {
   const listaEl = document.getElementById("lista-consultas");
   listaEl.innerHTML = "";
@@ -109,7 +99,6 @@ function renderizarConsultas() {
     return;
   }
   
-  // Ordena por data e hora
   const dadosOrdenados = [...dados.consultas].sort((a, b) => {
     const dataA = new Date(`${a.data}T${a.hora}`);
     const dataB = new Date(`${b.data}T${b.hora}`);
@@ -135,13 +124,11 @@ function renderizarConsultas() {
     listaEl.appendChild(itemEl);
   });
   
-  // Recarregar ícones após modificar o DOM
   if (typeof lucide !== "undefined") {
     lucide.createIcons();
   }
 }
 
-// Renderiza a lista de preenchimento de saúde
 function renderizarPreenchimentoSaude() {
   const listaEl = document.getElementById("lista-preenchimento-saude");
   listaEl.innerHTML = "";
@@ -151,7 +138,6 @@ function renderizarPreenchimentoSaude() {
     return;
   }
   
-  // Ordena do mais recente para o mais antigo
   const dadosOrdenados = [...dados.preenchimentoSaude].sort((a, b) => {
     return new Date(b.data) - new Date(a.data);
   });
@@ -162,7 +148,6 @@ function renderizarPreenchimentoSaude() {
       timeStyle: "short",
     }).format(new Date(item.data));
 
-    // Traduz as opções para português
     const traducoes = {
       "muito-bem": "Muito bem",
       "bem": "Bem",
@@ -197,17 +182,14 @@ function renderizarPreenchimentoSaude() {
     listaEl.appendChild(itemEl);
   });
   
-  // Recarregar ícones após modificar o DOM
   if (typeof lucide !== "undefined") {
     lucide.createIcons();
   }
 }
 
-// Adiciona mensagem ao chat
 function adicionarMensagemChat(texto, tipo) {
   const chatContainer = document.getElementById("chat-container");
   
-  // Remove mensagem de boas-vindas se for a primeira mensagem
   if (historioChat.length === 0 && chatContainer.querySelector(".text-center")) {
     chatContainer.innerHTML = "";
   }
@@ -220,55 +202,35 @@ function adicionarMensagemChat(texto, tipo) {
   mensagemEl.innerHTML = `<p class="text-sm">${escapeHtml(texto)}</p>`;
   chatContainer.appendChild(mensagemEl);
   
-  // Scroll para a última mensagem
   chatContainer.scrollTop = chatContainer.scrollHeight;
   
   historioChat.push({ tipo, texto });
 }
 
-// Função para escapar HTML e prevenir XSS
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Respostas simuladas da IA sobre saúde
 function obterRespostaIA(pergunta) {
-  const perguntas = {
-    pressão: "A pressão arterial normal é aproximadamente 120/80 mmHg. Se seus valores estão consistentemente altos, consulte um médico.",
-    medicamento: "Sempre tome seus medicamentos nos horários prescritos. Se esqueceu uma dose, não duplique na próxima vez.",
-    oxigenação: "A saturação de oxigênio normal está entre 95-100%. Valores abaixo de 95% podem indicar problemas respiratórios.",
-    cardíaco: "A frequência cardíaca em repouso normal é entre 60-100 bpm. Aumentos significativos podem indicar atividade ou estresse.",
-    saúde: "Cuide de sua saúde mantendo uma dieta equilibrada, praticando exercícios regularmente e dormindo bem.",
-    ajuda: "Posso ajudá-lo com perguntas sobre seus sinais vitais, medicamentos, consultas e saúde geral.",
-    dor: "Se você está sentindo dor, registre o nível de dor no formulário de Preenchimento de Saúde e consulte um médico se persistir.",
-  };
-  
-  const perguntaLower = pergunta.toLowerCase();
-  
-  for (let chave in perguntas) {
-    if (perguntaLower.includes(chave)) {
-      return perguntas[chave];
-    }
-  }
-  
-  return "Desculpe, não entendi sua pergunta. Pergunte-me sobre pressão, frequência cardíaca, oxigenação, medicamentos, consultas ou saúde em geral.";
+  const dadosMedicos = iaMedica.coletarDadosMedicos();
+  const resposta = iaMedica.gerarRespostaContextualizada(pergunta, dadosMedicos);
+  return resposta;
 }
 
-// --- FUNÇÕES DE PERSISTÊNCIA (localStorage) ---
+// --- FUNÇÕES DE PERSISTÊNCIA ---
 
 function carregarDados() {
   const dadosSalvos = localStorage.getItem("dados-paciente");
   if (dadosSalvos) {
     try {
       dados = JSON.parse(dadosSalvos);
-      // Garante que preenchimentoSaude existe (para compatibilidade)
       if (!dados.preenchimentoSaude) {
         dados.preenchimentoSaude = [];
       }
     } catch (e) {
-      console.error("Erro ao carregar dados do localStorage:", e);
+      console.error("Erro ao carregar dados:", e);
       dados = { sinaisVitais: [], medicamentos: [], consultas: [], preenchimentoSaude: [] };
     }
   }
@@ -278,12 +240,10 @@ function salvarDados() {
   localStorage.setItem("dados-paciente", JSON.stringify(dados));
 }
 
-// Remover item genérico
 function removerItem(tipo, id) {
   dados[tipo] = dados[tipo].filter((item) => item.id !== id);
   salvarDados();
   
-  // Re-renderiza a lista específica
   if (tipo === "sinaisVitais") renderizarSinaisVitais();
   if (tipo === "medicamentos") renderizarMedicamentos();
   if (tipo === "consultas") renderizarConsultas();
@@ -296,7 +256,6 @@ const modalAlerta = document.getElementById("modal-alerta");
 
 function mostrarModalAlerta() {
   modalAlerta.classList.remove("hidden");
-  // Para a animação de "zoom"
   setTimeout(() => {
     modalAlerta.querySelector("div").classList.remove("scale-95");
   }, 50);
@@ -309,30 +268,24 @@ function fecharModalAlerta() {
   }, 200);
 }
 
-// --- INICIALIZAÇÃO DA APLICAÇÃO ---
+// --- INICIALIZAÇÃO ---
 
-// Carrega dados salvos antes de renderizar
 carregarDados();
 
-// Renderiza tudo quando a página carrega
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOMContentLoaded acionado");
+  console.log("Aplicação iniciada");
 
-  // Carregar nome do paciente salvo
   const nomeSalvo = localStorage.getItem("nome-paciente");
   if (nomeSalvo) {
     document.getElementById("nome-paciente").textContent = nomeSalvo;
   }
   
-  // Renderizar todas as listas
   renderizarSinaisVitais();
   renderizarMedicamentos();
   renderizarConsultas();
   renderizarPreenchimentoSaude();
 
-  // --- ADICIONAR EVENT LISTENERS DOS FORMULÁRIOS ---
-
-  // Adicionar Sinais Vitais
+  // Sinais Vitais
   const formSinaisVitais = document.getElementById("form-sinais-vitais");
   if (formSinaisVitais) {
     formSinaisVitais.addEventListener("submit", function (e) {
@@ -351,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Adicionar Medicamento
+  // Medicamentos
   const formMedicamentos = document.getElementById("form-medicamentos");
   if (formMedicamentos) {
     formMedicamentos.addEventListener("submit", function (e) {
@@ -369,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Adicionar Consulta
+  // Consultas
   const formConsultas = document.getElementById("form-consultas");
   if (formConsultas) {
     formConsultas.addEventListener("submit", function (e) {
@@ -387,12 +340,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Adicionar Preenchimento de Saúde
+  // Preenchimento de Saúde
   const formPreenchimentoSaude = document.getElementById("form-preenchimento-saude");
   if (formPreenchimentoSaude) {
     formPreenchimentoSaude.addEventListener("submit", function (e) {
       e.preventDefault();
-      console.log("Formulário de preenchimento de saúde enviado");
       
       const novoItem = {
         id: Date.now(),
@@ -404,15 +356,11 @@ document.addEventListener("DOMContentLoaded", () => {
         data: new Date().toISOString(),
       };
       
-      console.log("Novo item:", novoItem);
       dados.preenchimentoSaude.push(novoItem);
       salvarDados();
       renderizarPreenchimentoSaude();
       
-      // Reset do formulário
       this.reset();
-      
-      // Reset escala de dor
       document.getElementById("escala-dor").value = 0;
       document.getElementById("valor-dor").textContent = "0";
     });
@@ -427,10 +375,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const mensagem = chatInput.value.trim();
       
       if (mensagem) {
-        // Adiciona mensagem do usuário
         adicionarMensagemChat(mensagem, "usuario");
         
-        // Simula delay da resposta da IA
         setTimeout(() => {
           const resposta = obterRespostaIA(mensagem);
           adicionarMensagemChat(resposta, "ia");
@@ -441,18 +387,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Listener para atualizar o valor de dor em tempo real
+  // Escala de dor
   const escalaDorliderElement = document.getElementById("escala-dor");
   const valorDorElement = document.getElementById("valor-dor");
   
   if (escalaDorliderElement && valorDorElement) {
     escalaDorliderElement.addEventListener("input", function () {
-      console.log("Slider movido para:", this.value);
       valorDorElement.textContent = this.value;
     });
   }
 
-  // Inicializar ícones Lucide
   if (typeof lucide !== "undefined") {
     lucide.createIcons();
   }
