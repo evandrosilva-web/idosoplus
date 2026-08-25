@@ -1,10 +1,11 @@
-// --- IA MÉDICA AVANÇADA COM INTEGRAÇÃO DE DADOS ---
+// --- IA MÉDICA AVANÇADA COM INTEGRAÇÃO COMPLETA DE DADOS ---
 
 class AssistenteIAMedica {
   constructor() {
     this.historico = [];
     this.avisos = [];
     this.analiseAtiva = true;
+    this.ultimaAnaliseSincronizada = null;
   }
 
   /**
@@ -19,6 +20,47 @@ class AssistenteIAMedica {
       preenchimentoSaude: dados.preenchimentoSaude.slice(-5),
       ultimoPreenchimento: dados.preenchimentoSaude[dados.preenchimentoSaude.length - 1] || null,
     };
+  }
+
+  /**
+   * Sincroniza automaticamente a IA com os cards de saúde
+   * Chamado sempre que há atualização nos formulários
+   */
+  sincronizarComCards() {
+    const dadosMedicos = this.coletarDadosMedicos();
+    
+    // Análise dos sinais vitais
+    const avisosSinaisVitais = this.analisarSinaisVitais(dadosMedicos.sinaisVitais);
+    
+    // Análise do preenchimento de saúde
+    const insightsSaude = this.sincronizarPreenchimentoComVitais(
+      dadosMedicos.ultimoPreenchimento,
+      dadosMedicos.sinaisVitais
+    );
+    
+    // Análise de medicamentos
+    const avisosMedicamentos = this.analisarMedicamentos(
+      dadosMedicos.medicamentos,
+      dadosMedicos.ultimoPreenchimento
+    );
+    
+    // Sugestões de consultas
+    const sugestoes = this.sugerirConsultasRelevantes(
+      dadosMedicos.consultas,
+      dadosMedicos.ultimoPreenchimento,
+      dadosMedicos.sinaisVitais
+    );
+
+    this.ultimaAnaliseSincronizada = {
+      timestamp: new Date().toLocaleString("pt-BR"),
+      avisosSinaisVitais,
+      insightsSaude,
+      avisosMedicamentos,
+      sugestoes,
+      dados: dadosMedicos
+    };
+
+    return this.ultimaAnaliseSincronizada;
   }
 
   /**
@@ -174,7 +216,7 @@ class AssistenteIAMedica {
         if (!consultasProximas.some(c => c.especialidade.toLowerCase().includes("cardiologia"))) {
           sugestoes.push({
             especialidade: "Cardiologia",
-            motivo: `Frequência cardíaca anormal (${cardiaco} bpm)",
+            motivo: `Frequência cardíaca anormal (${cardiaco} bpm)`,
             urgencia: "MÉDIA",
           });
         }
@@ -195,11 +237,123 @@ class AssistenteIAMedica {
   }
 
   /**
+   * Gera resumo integrado de todos os dados sincronizados
+   */
+  gerarResumoIntegrado() {
+    if (!this.ultimaAnaliseSincronizada) {
+      this.sincronizarComCards();
+    }
+
+    const analise = this.ultimaAnaliseSincronizada;
+    let resumo = `📋 RESUMO DE SAÚDE - ${analise.dados.paciente}\n`;
+    resumo += `Atualizado em: ${analise.timestamp}\n`;
+    resumo += `${'='.repeat(50)}\n\n`;
+
+    // Sinais Vitais
+    if (analise.dados.sinaisVitais.length > 0) {
+      const ultimo = analise.dados.sinaisVitais[analise.dados.sinaisVitais.length - 1];
+      resumo += `❤️ SINAIS VITAIS (ÚLTIMOS):\n`;
+      resumo += `• Pressão: ${ultimo.pressao} mmHg\n`;
+      resumo += `• Frequência Cardíaca: ${ultimo.cardiaco} bpm\n`;
+      resumo += `• Oxigenação: ${ultimo.oxigenacao}%\n\n`;
+    }
+
+    // Preenchimento de Saúde
+    if (analise.dados.ultimoPreenchimento) {
+      const prev = analise.dados.ultimoPreenchimento;
+      resumo += `📊 ESTADO DE SAÚDE:\n`;
+      resumo += `• Saúde Geral: ${this.traducao(prev.sensacaoGeral)}\n`;
+      resumo += `• Tonturas: ${this.traducao(prev.tonturas)}\n`;
+      resumo += `• Sono: ${this.traducao(prev.sono)}\n`;
+      resumo += `• Dor: ${prev.dor}/10\n`;
+      if (prev.observacoes) {
+        resumo += `• Observações: ${prev.observacoes}\n`;
+      }
+      resumo += `\n`;
+    }
+
+    // Avisos de Sinais Vitais
+    if (analise.avisosSinaisVitais.length > 0) {
+      resumo += `⚠️ ALERTAS DOS SINAIS VITAIS:\n`;
+      analise.avisosSinaisVitais.forEach(aviso => {
+        resumo += `• [${aviso.nivel}] ${aviso.tipo}: ${aviso.mensagem}\n`;
+        resumo += `  → ${aviso.recomendacao}\n`;
+      });
+      resumo += `\n`;
+    }
+
+    // Insights de Correlação
+    if (analise.insightsSaude && analise.insightsSaude.relacoes.length > 0) {
+      resumo += `🔗 CORRELAÇÕES DETECTADAS:\n`;
+      analise.insightsSaude.relacoes.forEach(rel => {
+        resumo += `• ${rel.mensagem}\n`;
+        resumo += `  → ${rel.sugestao}\n`;
+      });
+      resumo += `\n`;
+    }
+
+    // Avisos de Medicamentos
+    if (analise.avisosMedicamentos.length > 0) {
+      resumo += `💊 ATENÇÃO COM MEDICAMENTOS:\n`;
+      analise.avisosMedicamentos.forEach(aviso => {
+        resumo += `• ${aviso.mensagem}\n`;
+      });
+      resumo += `\n`;
+    }
+
+    // Medicamentos Agendados
+    if (analise.dados.medicamentos.length > 0) {
+      resumo += `💊 MEDICAMENTOS AGENDADOS:\n`;
+      analise.dados.medicamentos.forEach((med, i) => {
+        resumo += `${i + 1}. ${med.nome} (${med.dosagem}) - ${med.hora}\n`;
+      });
+      resumo += `\n`;
+    }
+
+    // Próximas Consultas
+    if (analise.dados.consultas.length > 0) {
+      const proximasConsultas = analise.dados.consultas
+        .filter(c => new Date(`${c.data}T${c.hora}`) > new Date())
+        .sort((a, b) => new Date(`${a.data}T${a.hora}`) - new Date(`${b.data}T${b.hora}`))
+        .slice(0, 3);
+
+      if (proximasConsultas.length > 0) {
+        resumo += `📅 PRÓXIMAS CONSULTAS:\n`;
+        proximasConsultas.forEach((consulta, i) => {
+          const data = new Date(`${consulta.data}T${consulta.hora}`).toLocaleDateString("pt-BR");
+          resumo += `${i + 1}. ${consulta.especialidade} - ${data} às ${consulta.hora}\n`;
+        });
+        resumo += `\n`;
+      }
+    }
+
+    // Sugestões de Consultas
+    if (analise.sugestoes.length > 0) {
+      resumo += `🏥 CONSULTAS RECOMENDADAS:\n`;
+      analise.sugestoes.forEach(sugestao => {
+        resumo += `• ${sugestao.especialidade} - ${sugestao.motivo} [${sugestao.urgencia}]\n`;
+      });
+      resumo += `\n`;
+    }
+
+    resumo += `${'='.repeat(50)}\n`;
+    resumo += `Fique atento aos alertas acima!`;
+
+    return resumo;
+  }
+
+  /**
    * Gera resposta contextualizada baseada em todos os dados
    */
   gerarRespostaContextualizada(pergunta, dadosMedicos) {
     const perguntaLower = pergunta.toLowerCase();
     let resposta = "";
+
+    // Pergunta genérica: retorna resumo
+    if (perguntaLower.includes("resumo") || perguntaLower.includes("situação") || 
+        perguntaLower.includes("como vai") || perguntaLower === "status") {
+      return this.gerarResumoIntegrado();
+    }
 
     if (perguntaLower.includes("como") && perguntaLower.includes("sente")) {
       if (dadosMedicos.ultimoPreenchimento) {
@@ -295,6 +449,7 @@ class AssistenteIAMedica {
     }
     else {
       resposta = `Pergunte-me sobre:\n`;
+      resposta += `• Status geral / Resumo\n`;
       resposta += `• Como você se sente?\n`;
       resposta += `• Seus medicamentos\n`;
       resposta += `• Pressão, frequência cardíaca ou oxigenação\n`;
