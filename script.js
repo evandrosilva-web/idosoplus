@@ -199,7 +199,7 @@ function adicionarMensagemChat(texto, tipo) {
     ? "bg-indigo-100 p-3 rounded-lg text-right"
     : "bg-gray-100 p-3 rounded-lg text-left";
   
-  mensagemEl.innerHTML = `<p class="text-sm">${escapeHtml(texto)}</p>`;
+  mensagemEl.innerHTML = `<p class="text-sm" style="white-space: pre-wrap;">${escapeHtml(texto)}</p>`;
   chatContainer.appendChild(mensagemEl);
   
   chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -215,6 +215,8 @@ function escapeHtml(text) {
 
 function obterRespostaIA(pergunta) {
   const dadosMedicos = iaMedica.coletarDadosMedicos();
+  // Sincronizar antes de gerar resposta
+  iaMedica.sincronizarComCards();
   const resposta = iaMedica.gerarRespostaContextualizada(pergunta, dadosMedicos);
   return resposta;
 }
@@ -238,6 +240,10 @@ function carregarDados() {
 
 function salvarDados() {
   localStorage.setItem("dados-paciente", JSON.stringify(dados));
+  // Sincronizar a IA sempre que dados são salvos
+  if (typeof iaMedica !== "undefined") {
+    iaMedica.sincronizarComCards();
+  }
 }
 
 function removerItem(tipo, id) {
