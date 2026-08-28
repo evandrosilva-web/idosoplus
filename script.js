@@ -213,11 +213,27 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Mapa de opções numeradas do assistente IA
+const opcoesMenuIA = {
+  "1": "resumo",
+  "2": "como você se sente",
+  "3": "medicamento",
+  "4": "pressão",
+  "5": "dor",
+  "6": "consulta",
+};
+
 function obterRespostaIA(pergunta) {
   const dadosMedicos = iaMedica.coletarDadosMedicos();
   // Sincronizar antes de gerar resposta
   iaMedica.sincronizarComCards();
-  const resposta = iaMedica.gerarRespostaContextualizada(pergunta, dadosMedicos);
+
+  // Verifica se o usuário digitou um número correspondente a uma opção do menu
+  const entrada = pergunta.trim();
+  const perguntaMapeada = opcoesMenuIA[entrada];
+  const perguntaFinal = perguntaMapeada || pergunta;
+
+  const resposta = iaMedica.gerarRespostaContextualizada(perguntaFinal, dadosMedicos);
   return resposta;
 }
 

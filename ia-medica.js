@@ -449,13 +449,13 @@ class AssistenteIAMedica {
     }
     else {
       resposta = `Pergunte-me sobre:\n`;
-      resposta += `• Status geral / Resumo\n`;
-      resposta += `• Como você se sente?\n`;
-      resposta += `• Seus medicamentos\n`;
-      resposta += `• Pressão, frequência cardíaca ou oxigenação\n`;
-      resposta += `• Sua dor\n`;
-      resposta += `• Próximas consultas\n\n`;
-      resposta += `Estou aqui para ajudar!`;
+      resposta += `1. Status geral / Resumo\n`;
+      resposta += `2. Como você se sente?\n`;
+      resposta += `3. Seus medicamentos\n`;
+      resposta += `4. Pressão, frequência cardíaca ou oxigenação\n`;
+      resposta += `5. Sua dor\n`;
+      resposta += `6. Próximas consultas\n\n`;
+      resposta += `Digite o número ou escreva sua pergunta. Estou aqui para ajudar!`;
     }
 
     return resposta;
