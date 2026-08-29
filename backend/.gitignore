@@ -1,0 +1,9 @@
+# Variáveis de ambiente - NUNCA enviar ao GitHub (contém a chave da API)
+.env
+
+# Dependências do Node.js - podem ser reinstaladas com "npm install"
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*

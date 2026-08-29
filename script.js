@@ -189,22 +189,39 @@ function renderizarPreenchimentoSaude() {
 
 function adicionarMensagemChat(texto, tipo) {
   const chatContainer = document.getElementById("chat-container");
-  
+
   if (historioChat.length === 0 && chatContainer.querySelector(".text-center")) {
     chatContainer.innerHTML = "";
   }
-  
+
   const mensagemEl = document.createElement("div");
-  mensagemEl.className = tipo === "usuario" 
-    ? "bg-indigo-100 p-3 rounded-lg text-right"
-    : "bg-gray-100 p-3 rounded-lg text-left";
-  
+  mensagemEl.className =
+    tipo === "usuario"
+      ? "bg-indigo-100 p-3 rounded-lg text-right"
+      : "bg-gray-100 p-3 rounded-lg text-left";
+
   mensagemEl.innerHTML = `<p class="text-sm" style="white-space: pre-wrap;">${escapeHtml(texto)}</p>`;
   chatContainer.appendChild(mensagemEl);
-  
+
   chatContainer.scrollTop = chatContainer.scrollHeight;
-  
+
   historioChat.push({ tipo, texto });
+  return mensagemEl;
+}
+
+function mostrarDigitando() {
+  const chatContainer = document.getElementById("chat-container");
+  const el = document.createElement("div");
+  el.id = "chat-digitando";
+  el.className = "bg-gray-100 p-3 rounded-lg text-left text-sm text-gray-400 italic";
+  el.textContent = "Assistente está digitando...";
+  chatContainer.appendChild(el);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function removerDigitando() {
+  const el = document.getElementById("chat-digitando");
+  if (el) el.remove();
 }
 
 function escapeHtml(text) {
@@ -215,26 +232,32 @@ function escapeHtml(text) {
 
 // Mapa de opções numeradas do assistente IA
 const opcoesMenuIA = {
-  "1": "resumo",
-  "2": "como você se sente",
-  "3": "medicamento",
-  "4": "pressão",
-  "5": "dor",
-  "6": "consulta",
+  "1": "Qual é o resumo geral da minha saúde?",
+  "2": "Como eu estou me sentindo hoje?",
+  "3": "Quais são os meus medicamentos?",
+  "4": "Como está minha pressão, frequência cardíaca e oxigenação?",
+  "5": "Como está minha dor?",
+  "6": "Quais são minhas próximas consultas?",
 };
 
-function obterRespostaIA(pergunta) {
-  const dadosMedicos = iaMedica.coletarDadosMedicos();
-  // Sincronizar antes de gerar resposta
-  iaMedica.sincronizarComCards();
-
+async function obterRespostaIA(pergunta) {
   // Verifica se o usuário digitou um número correspondente a uma opção do menu
   const entrada = pergunta.trim();
-  const perguntaMapeada = opcoesMenuIA[entrada];
-  const perguntaFinal = perguntaMapeada || pergunta;
+  const perguntaFinal = opcoesMenuIA[entrada] || pergunta;
 
-  const resposta = iaMedica.gerarRespostaContextualizada(perguntaFinal, dadosMedicos);
-  return resposta;
+  try {
+    // Envia ao backend Gemini com histórico da conversa
+    const resposta = await iaMedica.perguntarGemini(perguntaFinal, historioChat);
+    return resposta;
+  } catch (erro) {
+    console.error("Erro ao contatar backend:", erro.message);
+
+    if (erro.message.includes("Failed to fetch") || erro.message.includes("NetworkError")) {
+      return "⚠️ Não foi possível conectar ao servidor. Verifique se o backend está rodando com:\n\ncd backend\nnode server.js";
+    }
+
+    return `⚠️ Erro ao obter resposta: ${erro.message}`;
+  }
 }
 
 // --- FUNÇÕES DE PERSISTÊNCIA ---
@@ -391,20 +414,33 @@ document.addEventListener("DOMContentLoaded", () => {
   // Chat com IA
   const formChat = document.getElementById("form-chat");
   if (formChat) {
-    formChat.addEventListener("submit", function (e) {
+    formChat.addEventListener("submit", async function (e) {
       e.preventDefault();
       const chatInput = document.getElementById("chat-input");
+      const btnEnviar = formChat.querySelector("button[type='submit']");
       const mensagem = chatInput.value.trim();
-      
+
       if (mensagem) {
         adicionarMensagemChat(mensagem, "usuario");
-        
-        setTimeout(() => {
-          const resposta = obterRespostaIA(mensagem);
-          adicionarMensagemChat(resposta, "ia");
-        }, 500);
-        
         chatInput.value = "";
+
+        // Desabilita input enquanto aguarda resposta
+        chatInput.disabled = true;
+        btnEnviar.disabled = true;
+        mostrarDigitando();
+
+        try {
+          const resposta = await obterRespostaIA(mensagem);
+          removerDigitando();
+          adicionarMensagemChat(resposta, "ia");
+        } catch (err) {
+          removerDigitando();
+          adicionarMensagemChat("⚠️ Erro inesperado. Tente novamente.", "ia");
+        } finally {
+          chatInput.disabled = false;
+          btnEnviar.disabled = false;
+          chatInput.focus();
+        }
       }
     });
   }

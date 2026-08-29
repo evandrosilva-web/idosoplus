@@ -1,0 +1,11 @@
+# Variáveis de ambiente - NUNCA enviar ao GitHub
+.env
+backend/.env
+
+# Dependências do Node.js
+backend/node_modules/
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
