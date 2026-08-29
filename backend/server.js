@@ -9,7 +9,21 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // --- MIDDLEWARES ---
-app.use(cors({ origin: "*" })); // Em produção, trocar "*" pelo domínio real
+const origensPermitidas = [
+  "https://evandrosilva-web.github.io", // GitHub Pages (produção)
+  "http://localhost:5500",              // Live Server (desenvolvimento)
+  "http://127.0.0.1:5500",             // Live Server alternativo
+  "http://localhost:3000",             // Outros servidores locais
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Permite requisições sem origin (ex: testes locais abrindo o HTML direto)
+    if (!origin) return callback(null, true);
+    if (origensPermitidas.includes(origin)) return callback(null, true);
+    callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
+  },
+}));
 app.use(express.json());
 
 // --- INICIALIZAR GEMINI ---
@@ -151,7 +165,7 @@ function montarContextoPaciente(dadosMedicos) {
 }
 
 // --- INICIAR SERVIDOR ---
-app.listen(PORT, () => {
-  console.log(`✅ Servidor Idoso+ rodando em http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Servidor Idoso+ rodando na porta ${PORT}`);
   console.log(`📋 Status: http://localhost:${PORT}/api/status`);
 });

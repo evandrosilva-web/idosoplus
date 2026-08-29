@@ -1,6 +1,9 @@
 // --- IA MÉDICA COM INTEGRAÇÃO GEMINI API (BACKEND SEGURO) ---
 
-const BACKEND_URL = "http://localhost:3001";
+// URL do backend: usa Render em produção, localhost em desenvolvimento
+const BACKEND_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:3001"
+  : "https://idosoplus-backend.onrender.com";
 
 class AssistenteIAMedica {
   constructor() {
