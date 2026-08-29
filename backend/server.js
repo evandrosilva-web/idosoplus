@@ -41,6 +41,18 @@ integrado ao aplicativo Idoso+. Seu papel é:
 - Responder SEMPRE em português do Brasil`,
 });
 
+// --- ENDPOINT RAIZ ---
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "online", 
+    message: "Backend Idoso+ está funcionando!",
+    endpoints: {
+      status: "/api/status",
+      chat: "POST /api/chat"
+    }
+  });
+});
+
 // --- ENDPOINT DE SAÚDE DO SERVIDOR ---
 app.get("/api/status", (req, res) => {
   res.json({ status: "online", message: "Backend Idoso+ funcionando!" });
