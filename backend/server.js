@@ -14,13 +14,23 @@ const origensPermitidas = [
   "http://localhost:5500",              // Live Server (desenvolvimento)
   "http://127.0.0.1:5500",             // Live Server alternativo
   "http://localhost:3000",             // Outros servidores locais
+  "http://localhost:3001",             // Backend local
+  "null",                              // Arquivo HTML aberto direto no navegador
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permite requisições sem origin (ex: testes locais abrindo o HTML direto)
+    // Permite requisições sem origin
     if (!origin) return callback(null, true);
+    // Permite qualquer subdomínio do github.io
+    if (origin.endsWith(".github.io")) return callback(null, true);
+    // Permite origens explicitamente listadas
     if (origensPermitidas.includes(origin)) return callback(null, true);
+    // Em desenvolvimento, permite localhost em qualquer porta
+    if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+      return callback(null, true);
+    }
+    console.warn(`⚠️ Origem bloqueada pelo CORS: ${origin}`);
     callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
   },
 }));

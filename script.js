@@ -252,8 +252,8 @@ async function obterRespostaIA(pergunta) {
   } catch (erro) {
     console.error("Erro ao contatar backend:", erro.message);
 
-    if (erro.message.includes("Failed to fetch") || erro.message.includes("NetworkError")) {
-      return "⚠️ Não foi possível conectar ao servidor. Verifique se o backend está rodando com:\n\ncd backend\nnode server.js";
+    if (erro.message.includes("Failed to fetch") || erro.message.includes("NetworkError") || erro.message.includes("Load failed")) {
+      return "⏳ O servidor está acordando (pode levar até 1 minuto na primeira vez).\n\nAguarde alguns segundos e tente novamente!";
     }
 
     return `⚠️ Erro ao obter resposta: ${erro.message}`;
